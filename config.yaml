@@ -1,26 +1,64 @@
-datasets:
-  - file_path: "./data/jet_Tb300_Ts345_15_Radiation_Multicomponent_Soret_phi1_0_FFCM2.csv"
-    label: "FFCM-2"
-    color: "k"
-    linestyle: "-"
-    marker: "None"
-    markevery: 10
+simulation:
+  active: False 
 
-  - file_path: "./data/jet_Tb300_Ts345_15_Radiation_Multicomponent_Soret_phi1_0_GRI30.csv"
-    label: "GRI 3.0"
-    color: "gray"
-    linestyle: "-"
-    marker: "None"
-    markevery: 10
+  mode: "jet"
 
-plot_config:
-  x_label: "Height above burner (mm)"
-  x_lim: [-0.5, 20.5]
-  y_label: "Temperature (K)"
-  y_lim: [250, 1750]
-  grid: true
-  grid_color: "gray"
-  grid_alpha: 0.25
-  legend_loc: "lower center"
-  legend_fontsize: 12
-  output_file: "temperature.png"
+  rxnmech: "./FFCM-2/FFCM-2.yaml"
+
+  boundary_conditions:
+    p_pa: 101325
+    T_burner_K: 350
+    X_burner: "C2H4:1, O2:1.5, N2:5.64"
+    phi: 2.0
+    Vdot_burner_slpm:
+      C2H4: 1.22
+      Air: 8.78
+    M_kg_mol:
+      C2H4: 28.05336e-03
+      Air: 28.97e-03
+    T_stagnation_K: 393.15
+
+  models:
+    radiation: True
+    transport: "multicomponent"
+    soret: True
+
+  settings:
+    general:
+      grid_min: 1.0e-07
+      max_grid_points: 1.0e+4
+    meshing:
+      ratio: 2
+      slope: 0.015
+      curve: 0.022
+      prune: 0.0
+
+plot:
+  active: True
+
+  datasets:
+    - file_path: "./data/jet_Tb300_Ts345_15_Radiation_Multicomponent_Soret_phi1_0_FFCM2.csv"
+      label: "FFCM-2"
+      color: "k"
+      linestyle: "-"
+      marker: "None"
+      markevery: 10
+
+    - file_path: "./data/jet_Tb300_Ts345_15_Radiation_Multicomponent_Soret_phi1_0_GRI30.csv"
+      label: "GRI 3.0"
+      color: "gray"
+      linestyle: "-"
+      marker: "None"
+      markevery: 10
+
+  config:
+    x_label: "Height above burner (mm)"
+    x_lim: [-0.5, 20.5]
+    y_label: "Temperature (K)"
+    y_lim: [250, 1750]
+    grid: true
+    grid_color: "gray"
+    grid_alpha: 0.25
+    legend_loc: "lower center"
+    legend_fontsize: 12
+    output_file: "temperature.png"

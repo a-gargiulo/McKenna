@@ -1,10 +1,18 @@
 """UVA McKenna Burner Simulation."""
+
+import argparse
+import os
+import platform
 from pathlib import Path
 from typing import Dict, Union, cast
 
 import cantera as ct
+import matplotlib.pyplot as plt
 import numpy as np
+import yaml
+from matplotlib.ticker import MultipleLocator
 
+sys_name = platform.system()
 BoundaryConditions = Dict[str, Union[int, float, str, Dict[str, float]]]
 Models = Dict[str, Union[bool, str]]
 Settings = Dict[str, Dict[str, Union[int, float]]]
@@ -13,31 +21,48 @@ Settings = Dict[str, Dict[str, Union[int, float]]]
 D_CORE_M = 60.452e-03
 A_CORE_M2 = D_CORE_M**2 * np.pi / 4
 HAB_STAGNATION_M = 0.020
+M_TO_MM = 1000.0
+
+RC_PARAMS = {
+    "font.size": 18 if sys_name == "Darwin" else 16,
+    "font.family": "Avenir" if sys_name == "Darwin" else "Montserrat",
+    "axes.linewidth": 2,
+    "lines.linewidth": 2,
+    "xtick.direction": "in",
+    "xtick.major.width": 2,
+    "xtick.major.size": 4,
+    "xtick.minor.size": 3,
+    "ytick.direction": "in",
+    "ytick.major.width": 2,
+    "ytick.major.size": 4,
+    "ytick.minor.size": 3,
+}
+plt.rcParams.update(RC_PARAMS)
 
 
 def slpm_to_ndot(slpm: float) -> float:
-    """Convert volumetric flow rate to molar flow rate.
+    """Convert volumetric flow rate (slpm) to molar flow rate (mol/s).
 
-    The function converts from slpm to mol/s, assuming ideal gas behavior.
+    This function assumes ideal gas behavior.
 
     :param slpm: Volumetric flow rate in slpm.
 
     :return: Molar flow rate in mol/s.
     :rtype: float
     """
-    return (slpm * 0.001 * 1e5) / (60 * 8.314 * 273.15)
+    return (slpm * 0.001 * 1e5) / (60.0 * 8.314 * 273.15)
 
 
 def check_models(md: Models) -> bool:
-    """Check if the models dictionary is structured correctly.
+    """Check if `models` in `config.yaml` is compliant.
 
     :param md: Models dictionary.
 
-    :return: Boolean 'False' in case of an error or 'True' otherwise.
+    :return: `False` in case of an error and `True` otherwise.
     :rtype: bool
     """
     if not isinstance(md, dict):
-        print("[ERROR]: Models should be a dictionary.")
+        print("[ERROR]: 'models' in config.yaml should be a dictionary.")
         return False
 
     required_fields = {
@@ -47,11 +72,12 @@ def check_models(md: Models) -> bool:
     }
     for field, expected_type in required_fields.items():
         if field not in md:
-            print(f"[ERROR]: '{field}' is missing in the models.")
+            print(f"[ERROR]: '{field}' is missing in 'models'.")
             return False
         if not isinstance(md[field], expected_type):
             print(
-                f"[ERROR]: '{field}' should be of type {expected_type}, but got {type(md[field])}."
+                f"[ERROR]: '{field}' in 'models' should be of type "
+                f"{expected_type}, but got {type(md[field])}."
             )
             return False
 
@@ -59,24 +85,25 @@ def check_models(md: Models) -> bool:
 
 
 def check_simulation_settings(simsets: Settings) -> bool:
-    """Check if the simulation settings dictionary is structured correctly.
+    """Check if `settings` in `config.yaml` is compliant.
 
     :param simsets: Simulation settings.
 
-    :return: Boolean 'False' in case of an error or 'True' otherwise.
+    :return: `False` in case of an error and `True` otherwise.
     :rtype: bool
     """
     if not isinstance(simsets, dict):
-        print("[ERROR]: Simulation settings should be a dictionary.")
+        print("[ERROR]: 'settings' in config.yaml should be a dictionary.")
         return False
 
     for field in ["general", "meshing"]:
         if field not in simsets:
-            print(f"[ERROR]: '{field}' is missing in the simulation settings.")
+            print(f"[ERROR]: '{field}' is missing in 'settings'.")
             return False
         if not isinstance(simsets[field], dict):
             print(
-                f"[ERROR]: '{field}' should be of type dict, but got {type(simsets[field])}."
+                f"[ERROR]: '{field}' in 'settings' should be of type dict, "
+                f"but got {type(simsets[field])}."
             )
             return False
 
@@ -85,21 +112,23 @@ def check_simulation_settings(simsets: Settings) -> bool:
 
     for field in general_fields:
         if field not in simsets["general"]:
-            print(f"[ERROR]: '{field}' is missing in general settings.")
+            print(f"[ERROR]: '{field}' is missing in 'general' settings.")
             return False
         if not isinstance(simsets["general"][field], (int, float)):
             print(
-                f"[ERROR]: '{field}' should be of type int or float, but got {type(simsets['general'][field])}."
+                f"[ERROR]: '{field}' in 'general' settings should be of type "
+                f"int or float, but got {type(simsets['general'][field])}."
             )
             return False
 
     for field in mesh_fields:
         if field not in simsets["meshing"]:
-            print(f"[ERROR]: '{field}' is missing in meshing settings.")
+            print(f"[ERROR]: '{field}' is missing in 'meshing' settings.")
             return False
         if not isinstance(simsets["meshing"][field], (int, float)):
             print(
-                f"[ERROR]: '{field}' should be of type int or float, but got {type(simsets['meshing'][field])}."
+                f"[ERROR]: '{field}' in 'meshing' settings should be of type "
+                f"int or float, but got {type(simsets['meshing'][field])}."
             )
             return False
 
@@ -107,15 +136,15 @@ def check_simulation_settings(simsets: Settings) -> bool:
 
 
 def check_boundary_conditions(bc: BoundaryConditions) -> bool:
-    """Check if the boundary conditions dictionary is structured correctly.
+    """Check if `boundary_conditions` in `config.yaml` is compliant.
 
     :param bc: Boundary conditions.
 
-    :return: Boolean 'False' in case of an error or 'True' otherwise.
+    :return: `False` in case of an error and `True` otherwise.
     :rtype: bool
     """
     if not isinstance(bc, dict):
-        print("[ERROR]: Boundary conditions should be a dictionary.")
+        print("[ERROR]: 'boundary_conditions' should be a dictionary.")
         return False
 
     required_fields = {
@@ -130,31 +159,42 @@ def check_boundary_conditions(bc: BoundaryConditions) -> bool:
 
     for field, expected_type in required_fields.items():
         if field not in bc:
-            print(f"[ERROR]: '{field}' is missing in the boundary conditions.")
+            print(f"[ERROR]: '{field}' is missing in 'boundary_conditions'.")
             return False
         if not isinstance(bc[field], expected_type):
             print(
-                f"[ERROR]: '{field}' should be of type {expected_type}, but got {type(bc[field])}."
+                f"[ERROR]: '{field}' in 'boundary_conditions' should be of "
+                f"type {expected_type}, but got {type(bc[field])}."
             )
             return False
 
     for key, value in cast(dict, bc["Vdot_burner_slpm"]).items():
         if not isinstance(value, (int, float)):
             print(
-                f"[ERROR]: Value for '{key}' in 'Vdot_burner_slpm' should be int or float, but got {type(value)}."
+                f"[ERROR]: Value for '{key}' in 'Vdot_burner_slpm' should "
+                f"be int or float, but got {type(value)}."
             )
             return False
 
-    for key, value in cast(dict, bc["M_kg_mol"]).items():
-        if not isinstance(value, (int, float)):
-            print(
-                f"[ERROR]: Value for '{key}' in 'M_kg_mol' should be int or float, but got {type(value)}."
-            )
-            return False
-
-    if cast(dict, bc["Vdot_burner_slpm"]).keys() != cast(dict, bc["M_kg_mol"]).keys():
-        print("[ERROR]: The elements of 'Vdot_burner_slpm' and 'M_kg_mol' must match.")
+    if (
+        cast(dict, bc["Vdot_burner_slpm"]).keys()
+        != cast(dict, bc["M_kg_mol"]).keys()
+    ):
+        print(
+            "[ERROR]: Vdot_burner_slpm and M_kg_mol must define the"
+            "same elements."
+        )
         return False
+
+    for key in cast(dict, bc["Vdot_burner_slpm"]):
+        if type(cast(dict, bc["Vdot_burner_slpm"])[key]) is not type(
+            cast(dict, bc["M_kg_mol"])[key]
+        ):
+            print(
+                "[ERROR]: Vdot_burner_slpm and M_kg_mol must define the"
+                "same elements."
+            )
+            return False
 
     return True
 
@@ -174,7 +214,7 @@ def run_sim(
     :param models: Models.
     :param simset: Simulation settings.
 
-    :return: Boolean 'False' in case of an error or 'True' otherwise.
+    :return: `False` in case of an error and `True` otherwise.
     :rtype: bool
     """
     if not isinstance(mode, str):
@@ -182,7 +222,10 @@ def run_sim(
         return False
 
     if not isinstance(rxnmech, str):
-        print(f"[ERROR]: 'rxnmech' should be of type str, but got {type(rxnmech)}.")
+        print(
+            f"[ERROR]: 'rxnmech' should be of type str, "
+            f"but got {type(rxnmech)}."
+        )
         return False
 
     if not check_boundary_conditions(bc):
@@ -208,7 +251,7 @@ def run_sim(
 
     mass_flux_kg_m2_s = sum(mdot_kg_s) / A_CORE_M2
 
-    gas = ct.Solution(rxnmech)
+    gas = ct.composite.Solution(rxnmech)
     gas.TPX = bc["T_burner_K"], bc["p_pa"], bc["X_burner"]
 
     if mode == "jet":
@@ -236,7 +279,8 @@ def run_sim(
     loglevel = 1
     sim.set_grid_min(simsets["general"]["grid_min"])
     sim.set_max_grid_points(
-        sim.domains[sim.domain_index("flame")], simsets["general"]["max_grid_points"]
+        sim.domains[sim.domain_index("flame")],
+        simsets["general"]["max_grid_points"],
     )
     sim.set_refine_criteria(
         ratio=simsets["meshing"]["ratio"],
@@ -279,43 +323,115 @@ def run_sim(
     return True
 
 
+def plot_data(datasets: dict, plot_config: dict):
+    """Plot the numerical and experimental McKenna burner data.
+
+    :param datasets: The Cantera datasets to be plotted.
+    :param plot_config: Plot configurations.
+    """
+    fig = plt.figure(figsize=(3, 3))
+    ax1 = fig.add_axes((0, 0, 1, 1))
+
+    handles = []
+    labels = []
+    for dataset in datasets:
+        meta, data = load_cantera_csv(dataset["file_path"])
+        idxx = meta.index("grid")
+        idyy = meta.index("T")
+        x, y = data[:, idxx], data[:, idyy]
+
+        handles.append(
+            ax1.plot(
+                x * M_TO_MM,
+                y,
+                label=dataset.get("label", "Dataset"),
+                color=dataset.get("color", "k"),
+                linestyle=dataset.get("linestyle", "-"),
+                marker=dataset.get("marker", None),
+                markevery=dataset.get("markevery", None),
+            )[0]
+        )
+        labels.append(dataset.get("label", "data"))
+
+    ax1.xaxis.set_major_locator(MultipleLocator(5))
+    ax1.yaxis.set_major_locator(MultipleLocator(250))
+    ax1.tick_params(axis="x", pad=10)
+    ax1.tick_params(axis="y", pad=10)
+    ax1.set_xlim(plot_config.get("x_lim", [0, 20]))
+    ax1.set_ylim(plot_config.get("y_lim", [300, 1750]))
+    ax1.set_xlabel(plot_config.get("x_label", "X-Axis"), labelpad=10)
+    ax1.set_ylabel(plot_config.get("y_label", "Y-Axis"), labelpad=10)
+
+    if plot_config.get("grid", True):
+        ax1.grid(
+            True,
+            color=plot_config.get("grid_color", "gray"),
+            alpha=plot_config.get("grid_alpha", 1),
+        )
+
+    ax1.legend(
+        handles,
+        labels,
+        loc=plot_config.get("legend_loc", "lower center"),
+        fontsize=plot_config.get(
+            "legend_fontsize", 18 if sys_name == "Darwin" else 16
+        ),
+        edgecolor="k",
+        facecolor="white",
+        framealpha=1,
+    )
+
+    output_file = plot_config.get("output_file", "output_plot.png")
+    fig.savefig(output_file, dpi=300, bbox_inches="tight")
+    print(f"Plot saved to {output_file}")
+
+
+def load_cantera_csv(file_path: str) -> tuple[list[str], np.ndarray]:
+    """Load Cantera .csv data.
+
+    :param file_path: The data file's system path.
+
+    :return: The Cantera simulation meta and numerical data stored in the .csv
+        file.
+    :rtype: tuple[list[str], np.ndarray]
+    """
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+
+    with open(file_path, "r") as f:
+        meta = f.readline().strip().split(",")
+
+    data = np.genfromtxt(file_path, delimiter=",", skip_header=1)
+
+    return meta, data
+
+
+def main(config_file: str):
+    """Provide an alternative main entry point.
+
+    :param config_file: The configuration file's system path.
+    """
+    with open(config_file, "r") as file:
+        config = yaml.safe_load(file)
+    if config["simulation"]["active"]:
+        run_sim(
+            config["simulation"]["mode"],
+            config["simulation"]["rxnmech"],
+            config["simulation"]["boundary_conditions"],
+            config["simulation"]["models"],
+            config["simulation"]["settings"],
+        )
+    if config["plot"]["active"]:
+        plot_data(config["plot"]["datasets"], config["plot"]["config"])
+
+
 if __name__ == "__main__":
-    mode = "free"  # "free" / "jet"
-
-    rxnmech = "./FFCM-2/FFCM-2.yaml"  # reaction mechanism file
-
-    # bc = {
-    #     "p_pa": 101325,
-    #     "T_burner_K": 350,
-    #     "X_burner": "C2H4:1, O2:3, N2:11.29",
-    #     "phi": 1.0,
-    #     "Vdot_burner_slpm": {"C2H4": 0.652, "Air": 9.35},
-    #     "M_kg_mol": {"C2H4": 28.05336e-03, "Air": 28.97e-03},
-    #     "T_stagnation_K": 345.15,
-    # }
-
-    bc = {
-        "p_pa": 101325,
-        "T_burner_K": 350,
-        "X_burner": "C2H4:1, O2:1.5, N2:5.64",
-        "phi": 2.0,
-        "Vdot_burner_slpm": {"C2H4": 1.22, "Air": 8.78},
-        "M_kg_mol": {"C2H4": 28.05336e-03, "Air": 28.97e-03},
-        "T_stagnation_K": 393.15,
-    }
-
-    models = {
-        "radiation": True,
-        "transport": "multicomponent",  # 'multicomponent', 'mixture-averaged'
-        "soret": True,
-    }
-
-    simsets = {
-        "general": {
-            "grid_min": 1e-7,
-            "max_grid_points": 1e4,
-        },
-        "meshing": {"ratio": 2, "slope": 0.015, "curve": 0.022, "prune": 0.0},
-    }
-
-    run_sim(mode, rxnmech, bc, models, simsets)
+    parser = argparse.ArgumentParser(description="McKenna burner simulator")
+    parser.add_argument(
+        "--config",
+        type=str,
+        required=True,
+        help="Path to the YAML configuration file",
+    )
+    args = parser.parse_args()
+    main(args.config)
