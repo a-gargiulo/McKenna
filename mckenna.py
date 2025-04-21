@@ -341,6 +341,11 @@ def run_sim(
         output_file_name = output_file_name + "_NoSoret"
 
     output_file_name = output_file_name + f"_phi{bc['phi']}.csv"
+    output_file_name = (
+        "_".join(output_file_name.rsplit(".", 1)[0].split(".")) +
+        "." +
+        output_file_name.rsplit(".", 1)[1]
+    )
 
     sim.save(output_path / output_file_name, basis="mole", overwrite=True)
 

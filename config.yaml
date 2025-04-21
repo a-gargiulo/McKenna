@@ -1,22 +1,33 @@
 simulation:
-  active: False 
+  active: True
 
   mode: "jet"
 
   rxnmech: "./FFCM-2/FFCM-2.yaml"
 
   boundary_conditions:
-    p_pa: 101325
-    T_burner_K: 350
-    X_burner: "C2H4:1, O2:1.5, N2:5.64"
-    phi: 2.0
+    p_pa: 101325.0
+    T_burner_K: 300.0
+    # X_burner: "C2H4:1.0, O2:3.0, N2:11.29"
+    X_burner: "C2H4:1.0, O2:3.0, N2:11.14, AR:0.14"
+    phi: 1.0
     Vdot_burner_slpm:
-      C2H4: 1.22
-      Air: 8.78
+      C2H4: 0.652
+      # No Argon
+      # O2: 1.9635
+      # N2: 7.3865
+      # With Argon
+      O2: 1.9635
+      N2: 7.2930
+      AR: 0.0935
+      # Air: 9.350
     M_kg_mol:
       C2H4: 28.05336e-03
-      Air: 28.97e-03
-    T_stagnation_K: 393.15
+      O2: 31.99800e-03
+      N2: 28.013400e-03
+      AR: 39.94800e-03
+      # Air: 28.97000e-03
+    T_stagnation_K: 345.15
 
   models:
     radiation: True
@@ -34,7 +45,7 @@ simulation:
       prune: 0.0
 
 plot:
-  active: True
+  active: False 
 
   datasets:
     - file_path: "./data/jet_Tb300_Ts345_15_Radiation_Multicomponent_Soret_phi1_0_FFCM2.csv"
