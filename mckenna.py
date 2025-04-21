@@ -13,13 +13,14 @@ import yaml
 from matplotlib.ticker import MultipleLocator
 
 sys_name = platform.system()
+
 BoundaryConditions = Dict[str, Union[int, float, str, Dict[str, float]]]
 Models = Dict[str, Union[bool, str]]
 Settings = Dict[str, Dict[str, Union[int, float]]]
 
-# McKenna Burner Geometry
+# Constants
 D_CORE_M = 60.452e-03
-A_CORE_M2 = D_CORE_M**2 * np.pi / 4
+A_CORE_M2 = D_CORE_M**2.0 * np.pi / 4.0
 HAB_STAGNATION_M = 0.020
 M_TO_MM = 1000.0
 
@@ -41,28 +42,30 @@ plt.rcParams.update(RC_PARAMS)
 
 
 def slpm_to_ndot(slpm: float) -> float:
-    """Convert volumetric flow rate (slpm) to molar flow rate (mol/s).
+    """Convert a volumetric flow rate (slpm) to a molar flow rate (mol/s).
 
     This function assumes ideal gas behavior.
 
-    :param slpm: Volumetric flow rate in slpm.
+    :param slpm: Volumetric flow rate, slpm.
 
-    :return: Molar flow rate in mol/s.
+    :return: Molar flow rate, mol/s.
     :rtype: float
     """
-    return (slpm * 0.001 * 1e5) / (60.0 * 8.314 * 273.15)
+    return (slpm * 0.001 * 1.0e+05) / (60.0 * 8.314 * 273.15)
 
 
 def check_models(md: Models) -> bool:
-    """Check if `models` in `config.yaml` is compliant.
+    """Check the compliance of the models section in config.yaml.
 
     :param md: Models dictionary.
 
-    :return: `False` in case of an error and `True` otherwise.
+    :return: True if successful, False otherwise.
     :rtype: bool
     """
     if not isinstance(md, dict):
-        print("[ERROR]: 'models' in config.yaml should be a dictionary.")
+        print(
+            "[ERROR]: The 'models' section in 'config.yaml' should be "
+            "structured as a dictionary.")
         return False
 
     required_fields = {
@@ -72,12 +75,13 @@ def check_models(md: Models) -> bool:
     }
     for field, expected_type in required_fields.items():
         if field not in md:
-            print(f"[ERROR]: '{field}' is missing in 'models'.")
+            print(f"[ERROR]: '{field}' is missing in the 'models' section.")
             return False
         if not isinstance(md[field], expected_type):
             print(
-                f"[ERROR]: '{field}' in 'models' should be of type "
-                f"{expected_type}, but got {type(md[field])}."
+                f"[ERROR]: '{field}' in the 'models' section of 'config.yaml' "
+                f"should be of type {expected_type}, but "
+                f"got {type(md[field])}."
             )
             return False
 
@@ -85,24 +89,31 @@ def check_models(md: Models) -> bool:
 
 
 def check_simulation_settings(simsets: Settings) -> bool:
-    """Check if `settings` in `config.yaml` is compliant.
+    """Check the compliance of the settings section in config.yaml.
 
     :param simsets: Simulation settings.
 
-    :return: `False` in case of an error and `True` otherwise.
+    :return: True if successful, False otherwise.
     :rtype: bool
     """
     if not isinstance(simsets, dict):
-        print("[ERROR]: 'settings' in config.yaml should be a dictionary.")
+        print(
+            "[ERROR]: The 'settings' section in 'config.yaml' should be "
+            "structured as a dictionary."
+        )
         return False
 
     for field in ["general", "meshing"]:
         if field not in simsets:
-            print(f"[ERROR]: '{field}' is missing in 'settings'.")
+            print(
+                f"[ERROR]: '{field}' is missing in the 'settings' section "
+                f"of 'config.yaml'."
+            )
             return False
         if not isinstance(simsets[field], dict):
             print(
-                f"[ERROR]: '{field}' in 'settings' should be of type dict, "
+                f"[ERROR]: '{field}' in the 'settings' section of "
+                f"'config.yaml' should be of type dict, "
                 f"but got {type(simsets[field])}."
             )
             return False
@@ -112,22 +123,30 @@ def check_simulation_settings(simsets: Settings) -> bool:
 
     for field in general_fields:
         if field not in simsets["general"]:
-            print(f"[ERROR]: '{field}' is missing in 'general' settings.")
+            print(
+                f"[ERROR]: '{field}' is missing in the 'general' section "
+                f"of the 'settings' section in 'config.yaml'."
+            )
             return False
         if not isinstance(simsets["general"][field], (int, float)):
             print(
-                f"[ERROR]: '{field}' in 'general' settings should be of type "
+                f"[ERROR]: '{field}' in the 'general' section of "
+                f"the 'settings' section in 'config.yaml' should be of type "
                 f"int or float, but got {type(simsets['general'][field])}."
             )
             return False
 
     for field in mesh_fields:
         if field not in simsets["meshing"]:
-            print(f"[ERROR]: '{field}' is missing in 'meshing' settings.")
+            print(
+                f"[ERROR]: '{field}' is missing in the 'meshing' section "
+                f"of the 'settings' section in 'config.yaml'."
+            )
             return False
         if not isinstance(simsets["meshing"][field], (int, float)):
             print(
-                f"[ERROR]: '{field}' in 'meshing' settings should be of type "
+                f"[ERROR]: '{field}' in the 'meshing' section of "
+                f"the 'settings' section in 'config.yaml' should be of type "
                 f"int or float, but got {type(simsets['meshing'][field])}."
             )
             return False
@@ -136,15 +155,18 @@ def check_simulation_settings(simsets: Settings) -> bool:
 
 
 def check_boundary_conditions(bc: BoundaryConditions) -> bool:
-    """Check if `boundary_conditions` in `config.yaml` is compliant.
+    """Check the compliance of the boundary_conditions section in config.yaml.
 
     :param bc: Boundary conditions.
 
-    :return: `False` in case of an error and `True` otherwise.
+    :return: True if successful, False otherwise.
     :rtype: bool
     """
     if not isinstance(bc, dict):
-        print("[ERROR]: 'boundary_conditions' should be a dictionary.")
+        print(
+            "[ERROR]: The 'boundary_conditions' section should be a "
+            "dictionary."
+        )
         return False
 
     required_fields = {
@@ -156,23 +178,27 @@ def check_boundary_conditions(bc: BoundaryConditions) -> bool:
         "M_kg_mol": dict,
         "T_stagnation_K": (int, float),
     }
-
     for field, expected_type in required_fields.items():
         if field not in bc:
-            print(f"[ERROR]: '{field}' is missing in 'boundary_conditions'.")
+            print(
+                f"[ERROR]: '{field}' is missing in the 'boundary_conditions' "
+                f"section of 'config.yaml'."
+            )
             return False
         if not isinstance(bc[field], expected_type):
             print(
-                f"[ERROR]: '{field}' in 'boundary_conditions' should be of "
-                f"type {expected_type}, but got {type(bc[field])}."
+                f"[ERROR]: '{field}' in the 'boundary_conditions' section "
+                f"in 'config.yaml' should be of type {expected_type}, but "
+                f"got {type(bc[field])}."
             )
             return False
 
     for key, value in cast(dict, bc["Vdot_burner_slpm"]).items():
         if not isinstance(value, (int, float)):
             print(
-                f"[ERROR]: Value for '{key}' in 'Vdot_burner_slpm' should "
-                f"be int or float, but got {type(value)}."
+                f"[ERROR]: Value for '{key}' in the 'Vdot_burner_slpm' "
+                f"section of the 'boundary_conditions' section in "
+                f"'config.yaml' should be int or float, but got {type(value)}."
             )
             return False
 
@@ -181,7 +207,7 @@ def check_boundary_conditions(bc: BoundaryConditions) -> bool:
         != cast(dict, bc["M_kg_mol"]).keys()
     ):
         print(
-            "[ERROR]: Vdot_burner_slpm and M_kg_mol must define the"
+            "[ERROR]: Vdot_burner_slpm and M_kg_mol must contain the"
             "same elements."
         )
         return False
@@ -191,8 +217,8 @@ def check_boundary_conditions(bc: BoundaryConditions) -> bool:
             cast(dict, bc["M_kg_mol"])[key]
         ):
             print(
-                "[ERROR]: Vdot_burner_slpm and M_kg_mol must define the"
-                "same elements."
+                "[ERROR]: Vdot_burner_slpm and M_kg_mol must have the"
+                "same element types."
             )
             return False
 
@@ -214,7 +240,7 @@ def run_sim(
     :param models: Models.
     :param simset: Simulation settings.
 
-    :return: `False` in case of an error and `True` otherwise.
+    :return: True if successful, False otherwise.
     :rtype: bool
     """
     if not isinstance(mode, str):
