@@ -75,6 +75,7 @@ class ConfigValidator:
         if self.mode == "uq":
             self._validate_stat_field(bc, "burner_temperature")
             self._validate_stat_field(bc, "stagnation_temperature")
+            self._require("fuel", str, bc)
             self._validate_flow_rates(
                 bc.get("flow_rates", {}), expect_stat=True
             )

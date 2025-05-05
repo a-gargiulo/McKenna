@@ -4,8 +4,8 @@ mechanism: "./FFCM-2/FFCM-2.yaml"
 
 geometry:
   type: "impinging_jet"  # free_flame or impinging_jet
-  domain_width: 0.020  # [m]
   burner_diameter: 60.452e-03  # [m]; core flow only, co-flow neglected
+  domain_width: 0.020  # [m]
 
 boundary_conditions:
   pressure: 101325.0  # [Pa]
@@ -20,6 +20,9 @@ boundary_conditions:
   # Note: The molar composition is only needed in 'single' mode, where a nominal
   # equivalence ratio is assumed. It can be omited in 'uq' mode.
   composition: "C2H4:1.0, O2:3.0, N2:11.14, AR:0.14"  
+  # Note: Similarly, the fuel specification is only needed in 'uq' mode, where the
+  # composition is calculated from the flow rates. It can be omited in 'single' mode.
+  fuel: "C2H4"
   flow_rates:  # [slpm]
     C2H4:
       distribution: "normal"

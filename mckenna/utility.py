@@ -4,7 +4,8 @@ Author: Aldo Gargiulo
 Email:  bzc6rs@virginia.edu
 Date:   05/02/2025 (MM/DD/YYYY)
 """
-from typing import Dict, List, TYPE_CHECKING
+from types import MappingProxyType
+from typing import Any, Dict, List, TYPE_CHECKING, Union, Mapping, Tuple
 
 if TYPE_CHECKING:
     import cantera as ct
@@ -58,15 +59,7 @@ def slpm_to_ndot(slpm: float) -> float:
     return (slpm * 0.001 * 1.0e+05) / (60.0 * 8.314 * 273.15)
 
 
-def calculate_mass_flux(
-    flow_rates: Dict[str, float], gas: ct.composite.Solution, area: float
-) -> float:
-    """Calculate mass flux from input flow rates.
+def calculate_composition(flow_rates: Dict[str, float], fuel: str) -> str:
+    """Compute the composition string from the volumetric flow rates in slpm."""
 
-    :param flow_rate: Volumetric mass flow rates
-    """
-    mdot_total = sum(
-        slpm_to_ndot(Vdot) * gas.molecular_weight(gas.species_index(species))
-        for species, Vdot in flow_rates.items()
-    )
-    return mdot_total / area
+    return ",".join(f"{component}: {value / flow_rates[fuel]}" for component, value in flow_rates.items())

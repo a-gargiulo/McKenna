@@ -4,105 +4,130 @@ Author: Aldo Gargiulo
 Email:  bzc6rs@virginia.edu
 Date:   05/02/2025 (MM/DD/YYYY)
 """
-from typing import Any, Dict, Union
+from typing import Any, Dict, Union, Optional, Mapping, cast
 from mckenna import utility
+from mckenna.mytypes import ConfigDict
 import numpy as np
 import cantera as ct
+import copy
+from pathlib import Path
+import uuid
 
+class McKenna:
+    """UVA McKenna burner model."""
 
-class McKenna()
+    def __init__(self, config: ConfigDict, overrides: Optional[Dict[str, Any]]=None):
+        """Construct a McKenna burner model.
 
+        :param config: Configuration data.
+        :param overrides: Override values.
+        :raise RuntimeError: If something goes wrong during model instantiation.
+        """
+        self._config = config
 
-def run_flame_simulation(inputs: Dict[str, Any]) -> bool:
-    """Run a 1D premixed impinging jet or free flame Cantera simulation.
+        if self._config["mode"] == "uq":
+            if overrides is None:
+                raise RuntimeError("In 'uq' mode, the overrides cannot be zero.")
+            self.inputs = self.extract_model_inputs(overrides)
+        elif self._config["mode"] == "single":
+            self.inputs = self.extract_model_inputs()
+        else:
+            raise RuntimeError("No matching caluclation mode provided.")
 
-    :param mode: Simulation mode (uq, single)
-    :param rxn: Path to reaction mechanism file.
-    :param geometry: Model geometry.
-    :param bc: Boundary conditions.
-    :param submodels: Submodels.
-    :param settings: Simulation settings.
-    :return: True if successful, False otherwise.
-    :rtype: bool
-    """
-    gas = ct.composite.Solution(inputs[])
-    A_core_m2 = inputs["burner_diameter"]**2.0 * np.pi / 4.0
-    mass_flux_kg_m2_s = utility.calculate_mass_flux(inputs["flow_rates"], gas, A_core_m2)
+    def extract_model_inputs(self, overrides: Optional[Dict[str, Any]] = None) -> ConfigDict:
+        """Extract inputs, optionally overriding with UQ sample values."""
+        inputs = copy.deepcopy(self._config)
 
-    gas.TPX = bc["T_burner_K"], bc["p_pa"], bc["X_burner"]
+        if inputs["mode"] == "uq":
+            if not overrides:
+                raise ValueError("In 'uq' mode, overrides must be provided.")
 
-    if mode == "jet":
-        sim = ct.ImpingingJet(gas=gas, width=HAB_STAGNATION_M)
-        sim.radiation_enabled = models["radiation"]
-        sim.transport_model = models["transport"]
-        sim.soret_enabled = models["soret"]
+            for key, override_value in overrides.items():
+                base_value = inputs.get(key)
 
-        sim.inlet.mdot = mass_flux_kg_m2_s
-        sim.inlet.T = bc["T_burner_K"]
-        sim.surface.T = bc["T_stagnation_K"]
-        sim.set_initial_guess(products="equil")
-    elif mode == "free":
-        sim = ct.BurnerFlame(gas=gas, width=HAB_STAGNATION_M)
-        sim.radiation_enabled = models["radiation"]
-        sim.transport_model = models["transport"]
-        sim.soret_enabled = models["soret"]
+                if isinstance(base_value, dict) and isinstance(override_value, dict):
+                    base_value.update(override_value)
+                else:
+                    inputs[key] = override_value
 
-        sim.burner.mdot = mass_flux_kg_m2_s
-        sim.burner.T = bc["T_burner_K"]
-    else:
-        print(f"[ERROR]: The selected simulation mode {mode} is invalid.")
-        return False
+        return inputs
 
-    loglevel = 1
-    sim.set_grid_min(simsets["general"]["grid_min"])
-    sim.set_max_grid_points(
-        sim.domains[sim.domain_index("flame")],
-        simsets["general"]["max_grid_points"],
-    )
-    sim.set_refine_criteria(
-        ratio=simsets["meshing"]["ratio"],
-        slope=simsets["meshing"]["slope"],
-        curve=simsets["meshing"]["curve"],
-        prune=simsets["meshing"]["prune"],
-    )
+    def run_simulation(self, loglevel: int):
+        """Run a 1D premixed impinging jet or free flame Cantera simulation.
 
-    sim.show()
-    sim.solve(loglevel, auto=True)
+        :return: True if successful, False otherwise.
+        :rtype: bool
+        """
+        gas = ct.composite.Solution(self.inputs["mechanism"])
 
-    output_path = Path() / "data"
-    output_path.mkdir(parents=True, exist_ok=True)
+        mdot_total = sum(
+            utility.slpm_to_ndot(Vdot) * gas.molecular_weight(gas.species_index(species))
+            for species, Vdot in cast(Dict[str, float], self.inputs["boundary_conditions"]["flow_rates"]).items()
+        )
+        A_core_m2 = self.inputs["geometry"]["burner_diameter"]**2.0 * np.pi / 4.0
+        mass_flux_kg_m2_s = mdot_total / A_core_m2
 
-    output_file_name = f"{mode}_Tb{bc['T_burner_K']}"
-    if mode == "jet":
-        output_file_name = output_file_name + f"_Tplate{bc['T_stagnation_K']}"
+        if self.inputs["mode"] == 'uq':
+            composition = utility.calculate_composition(
+                cast(Dict[str, float], self.inputs["boundary_conditions"]["flow_rates"]),
+                cast(str, self.inputs["boundary_conditions"]["fuel"])
+            )
+        else:
+            composition = self.inputs["boundary_conditions"]["composition"]
 
-    if sim.radiation_enabled:
-        output_file_name = output_file_name + "_Radiation"
-    else:
-        output_file_name = output_file_name + "_NoRadiation"
+        gas.TPX = (
+            self.inputs["boundary_conditions"]["burner_temperature"],
+            self.inputs["boundary_conditions"]["pressure"],
+            composition
+        )
 
-    if sim.transport_model == "multicomponent":
-        output_file_name = output_file_name + "_Multicomponent"
-    else:
-        output_file_name = output_file_name + "_MixtureAveraged"
+        if self.inputs["mode"] == "impinging_jet":
+            sim = ct.ImpingingJet(gas=gas, width=self.inputs["geometry"]["domain_width"])
+            sim.radiation_enabled = self.inputs["submodels"]["radiation"]
+            sim.transport_model = self.inputs["submodels"]["transport"]
+            sim.soret_enabled = self.inputs["submodels"]["soret"]
 
-    if sim.soret_enabled:
-        output_file_name = output_file_name + "_Soret"
-    else:
-        output_file_name = output_file_name + "_NoSoret"
+            sim.inlet.mdot = mass_flux_kg_m2_s
+            sim.inlet.T = self.inputs["boundary_conditions"]["burner_temperature"]
+            sim.surface.T = self.inputs["boundary_conditions"]["stagnation_temperature"]
+            sim.set_initial_guess(products="equil")
+        elif self.inputs["mode"] == "free_flame":
+            sim = ct.BurnerFlame(gas=gas, width=self.inputs["geometry"]["domain_width"])
+            sim.radiation_enabled = self.inputs["submodels"]["radiation"]
+            sim.transport_model = self.inputs["submodels"]["transport"]
+            sim.soret_enabled = self.inputs["submodels"]["soret"]
 
-    output_file_name = output_file_name + f"_phi{bc['phi']}.csv"
-    output_file_name = (
-        "_".join(output_file_name.rsplit(".", 1)[0].split(".")) +
-        "." +
-        output_file_name.rsplit(".", 1)[1]
-    )
+            sim.burner.mdot = mass_flux_kg_m2_s
+            sim.burner.T = self.inputs["boundary_conditions"]["burner_temperature"]
+        else:
+            raise ValueError("The selected simulation calculation mode is invalid.")
 
-    sim.save(output_path / output_file_name, basis="mole", overwrite=True)
+        sim.set_grid_min(self.inputs["settings"]["meshing"]["grid_min"])
+        sim.set_max_grid_points(
+            sim.domains[sim.domain_index("flame")],
+            self.inputs["settings"]["meshing"]["max_grid_points"],
+        )
+        sim.set_refine_criteria(
+            ratio=self.inputs["settings"]["meshing"]["ratio"],
+            slope=self.inputs["settings"]["meshing"]["slope"],
+            curve=self.inputs["settings"]["meshing"]["curve"],
+            prune=self.inputs["settings"]["meshing"]["prune"],
+        )
 
-    sim.show_stats()
+        # sim.show()
+        sim.solve(loglevel, auto=True)
 
-    return True
+        output_path = Path() / "data"
+        # output_path.mkdir(parents=True, exist_ok=True)
+
+        output_file_name = f"{self.inputs['geometry']['type']}"
+        if self.inputs["mode"] == "uq":
+            output_file_name += f"_{uuid.uuid4()}"
+
+        sim.save(output_path / output_file_name, basis="mole", overwrite=True)
+
+        # sim.show_stats()
+
 # # ---------- Flame Simulation Function ----------
 # def run_flame_simulation(epistemic_input: Dict, aleatory_input: Dict) -> float:
 #     """Runs a 1D premixed flame simulation with given inputs and returns a metric."""
