@@ -1,0 +1,1 @@
+from mckenna import config

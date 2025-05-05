@@ -1,82 +1,62 @@
-simulation:
-  active: True 
+mode: "uq"  # uq or single
 
-  mode: "jet"
+mechanism: "./FFCM-2/FFCM-2.yaml"
 
-  rxnmech: "./FFCM-2/FFCM-2.yaml"
+geometry:
+  type: "impinging_jet"  # free_flame or impinging_jet
+  domain_width: 0.020  # [m]
+  burner_diameter: 60.452e-03  # [m]; core flow only, co-flow neglected
 
-  boundary_conditions:
-    p_pa: 101325.0
-    T_burner_K: 300.0
-    X_burner: "C2H4:1.0, O2:3.0, N2:11.29"
-    # X_burner: "C2H4:1.0, O2:3.0, N2:11.14, AR:0.14"
-    phi: 1.0
-    Vdot_burner_slpm:
-      C2H4: 0.652
-      # No Argon
-      O2: 1.9635
-      N2: 7.3865
-      # With Argon
-      # O2: 1.9635
-      # N2: 7.2930
-      # AR: 0.0935
-      # Air: 9.350
-    M_kg_mol:
-      C2H4: 28.05336e-03
-      O2: 31.99800e-03
-      N2: 28.013400e-03
-      # AR: 39.94800e-03
-      # Air: 28.97000e-03
-    T_stagnation_K: 345.15
+boundary_conditions:
+  pressure: 101325.0  # [Pa]
+  burner_temperature: # [K]
+    distribution: "uniform"
+    min: 300
+    max: 350
+  stagnation_temperature: 
+    distribution: "normal" 
+    mean: 345.15 # [K]
+    stdev: 20 
+  # Note: The molar composition is only needed in 'single' mode, where a nominal
+  # equivalence ratio is assumed. It can be omited in 'uq' mode.
+  composition: "C2H4:1.0, O2:3.0, N2:11.14, AR:0.14"  
+  flow_rates:  # [slpm]
+    C2H4:
+      distribution: "normal"
+      mean: 0.652
+      stdev: 0.003
+    # Air 9.35 slpm,
+    # (std. deviation of O2, N2, or AR flow rate in slpm) = 
+    #     (flow rate of Air in slpm) *
+    #     (mass flow controller uncertainty [~0.5%]) *
+    #     (moles of O2, N2, or AR per mole of 'dry' air)
+    # TODO: In the future, use wet air if a hygrometer reading is available 
+    O2:
+      distribution: "normal"
+      mean: 1.9635
+      stdev: 0.0098
+    N2:
+      distribution: "normal"
+      mean: 7.2930
+      stdev: 0.0365
+    AR:
+      distribution: "normal"
+      mean: 0.0935
+      stdev: 0.0005
 
-  models:
-    radiation: True
-    transport: "multicomponent"
-    soret: True
+submodels:
+  radiation: true
+  transport: "multicomponent"
+  soret: true
 
-  settings:
-    general:
-      grid_min: 1.0e-07
-      max_grid_points: 1.0e+4
-    meshing:
-      ratio: 2
-      slope: 0.015
-      curve: 0.022
-      prune: 0.0
-
-plot:
-  active: False 
-
-  datasets:
-    - file_path: "./data/jet_Tb300_0_Tplate345_15_Radiation_Multicomponent_Soret_phi1_0_FFCM2_Argon.csv"
-      label: "Argon"
-      color: "k"
-      linestyle: "-"
-      marker: "None"
-      markevery: 10
-
-    - file_path: "./data/jet_Tb300_0_Tplate345_15_Radiation_Multicomponent_Soret_phi1_0_FFCM2_NoArgon.csv"
-      label: "NoArgon"
-      color: "gray"
-      linestyle: "-"
-      marker: "None"
-      markevery: 10
-
-    - file_path: "./data/jet_Tb300_Ts345_15_Radiation_Multicomponent_Soret_phi1_0_FFCM2.csv"
-      label: "Air"
-      color: "red"
-      linestyle: "--"
-      marker: "None"
-      markevery: 10
-
-  config:
-    x_label: "Height above burner (mm)"
-    x_lim: [-0.5, 20.5]
-    y_label: "Temperature (K)"
-    y_lim: [250, 1750]
-    grid: true
-    grid_color: "gray"
-    grid_alpha: 0.25
-    legend_loc: "lower center"
-    legend_fontsize: 12
-    output_file: "temperature.png"
+settings:
+  meshing:
+    grid_min_size: 1.0e-07
+    max_grid_points: 1.0e+4
+    ratio: 2
+    slope: 0.015
+    curve: 0.022
+    prune: 0.0
+  uq:
+    epistemic_samples: 10
+    aleatory_samples: 100

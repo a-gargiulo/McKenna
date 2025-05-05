@@ -1,4 +1,4 @@
-"""UVA McKenna Burner Simulation."""
+"""UVA McKenna burner Cantera model."""
 
 import argparse
 import os
@@ -18,11 +18,6 @@ BoundaryConditions = Dict[str, Union[int, float, str, Dict[str, float]]]
 Models = Dict[str, Union[bool, str]]
 Settings = Dict[str, Dict[str, Union[int, float]]]
 
-# Constants
-D_CORE_M = 60.452e-03
-A_CORE_M2 = D_CORE_M**2.0 * np.pi / 4.0
-HAB_STAGNATION_M = 0.020
-M_TO_MM = 1000.0
 
 RC_PARAMS = {
     "font.size": 18 if sys_name == "Darwin" else 16,
