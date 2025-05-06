@@ -1,4 +1,5 @@
-mode: "uq"  # uq or single
+# mode: "uq"  # uq or single
+mode: "single"  # uq or single
 
 mechanism: "./FFCM-2/FFCM-2.yaml"
 
@@ -9,14 +10,14 @@ geometry:
 
 boundary_conditions:
   pressure: 101325.0  # [Pa]
-  burner_temperature: # [K]
-    distribution: "uniform"
-    min: 300
-    max: 350
-  stagnation_temperature: 
-    distribution: "normal" 
-    mean: 345.15 # [K]
-    stdev: 20 
+  burner_temperature: 300 # [K]
+    # distribution: "uniform"
+    # min: 300
+    # max: 350
+  stagnation_temperature: 345.15
+    # distribution: "normal" 
+    # mean: 345.15 # [K]
+    # stdev: 20 
   # Note: The molar composition is only needed in 'single' mode, where a nominal
   # equivalence ratio is assumed. It can be omited in 'uq' mode.
   composition: "C2H4:1.0, O2:3.0, N2:11.14, AR:0.14"  
@@ -24,28 +25,28 @@ boundary_conditions:
   # composition is calculated from the flow rates. It can be omited in 'single' mode.
   fuel: "C2H4"
   flow_rates:  # [slpm]
-    C2H4:
-      distribution: "normal"
-      mean: 0.652
-      stdev: 0.003
+    C2H4: 0.652
+      # distribution: "normal"
+      # mean: 0.652
+      # stdev: 0.003
     # Air 9.35 slpm,
     # (std. deviation of O2, N2, or AR flow rate in slpm) = 
     #     (flow rate of Air in slpm) *
     #     (mass flow controller uncertainty [~0.5%]) *
     #     (moles of O2, N2, or AR per mole of 'dry' air)
     # TODO: In the future, use wet air if a hygrometer reading is available 
-    O2:
-      distribution: "normal"
-      mean: 1.9635
-      stdev: 0.0098
-    N2:
-      distribution: "normal"
-      mean: 7.2930
-      stdev: 0.0365
-    AR:
-      distribution: "normal"
-      mean: 0.0935
-      stdev: 0.0005
+    O2: 1.9635 
+      # distribution: "normal"
+      # mean: 1.9635
+      # stdev: 0.0098
+    N2: 7.2930 
+      # distribution: "normal"
+      # mean: 7.2930
+      # stdev: 0.0365
+    AR: 0.0935
+      # distribution: "normal"
+      # mean: 0.0935
+      # stdev: 0.0005
 
 submodels:
   radiation: true
@@ -55,11 +56,11 @@ submodels:
 settings:
   meshing:
     grid_min_size: 1.0e-07
-    max_grid_points: 1.0e+4
+    max_grid_points: 1.0e+04
     ratio: 2
     slope: 0.015
     curve: 0.022
     prune: 0.0
-  uq:
-    epistemic_samples: 10
-    aleatory_samples: 100
+  # uq:
+  #   epistemic_samples: 10
+  #   aleatory_samples: 10

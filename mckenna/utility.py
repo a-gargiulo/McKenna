@@ -4,8 +4,7 @@ Author: Aldo Gargiulo
 Email:  bzc6rs@virginia.edu
 Date:   05/02/2025 (MM/DD/YYYY)
 """
-from types import MappingProxyType
-from typing import Any, Dict, List, TYPE_CHECKING, Union, Mapping, Tuple
+from typing import Any, Dict, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     import cantera as ct
@@ -63,3 +62,20 @@ def calculate_composition(flow_rates: Dict[str, float], fuel: str) -> str:
     """Compute the composition string from the volumetric flow rates in slpm."""
 
     return ",".join(f"{component}: {value / flow_rates[fuel]}" for component, value in flow_rates.items())
+
+
+def deep_merge(dict1: Dict[str, Any], dict2: Dict[str, Any]) -> Dict[str, Any]:
+    """Recursively merge dict2 into dict1 without modifying the originals."""
+    result = dict1.copy()  # Create a shallow copy of dict1
+
+    for key, value in dict2.items():
+        if (
+            key in result
+            and isinstance(result[key], dict)
+            and isinstance(value, dict)
+        ):
+            result[key] = deep_merge(result[key], value)  # Recursively merge nested dictionaries
+        else:
+            result[key] = value  # Otherwise, just overwrite the value from dict2
+
+    return result

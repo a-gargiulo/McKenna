@@ -10,6 +10,7 @@ import os
 import yaml
 from typing import Any, Dict, List, Type, Optional, Union, Tuple
 from mckenna.utility import parse_composition
+from mckenna.mytypes import ConfigDict
 
 
 class ConfigValidationError(Exception):
@@ -209,7 +210,7 @@ def load_yaml_config(path: str) -> dict:
         )
 
 
-def validate_config_file(path: str) -> None:
+def validate_config_file(path: str) -> dict:
     """Validate the YAML configuration file.
 
     :param path: Path to the configuration file.
@@ -224,5 +225,7 @@ def validate_config_file(path: str) -> None:
             f"[INFO]: '{os.path.basename(path)}' successfully "
             "loaded and validated."
         )
+        return config
     except ConfigValidationError as e:
         print(f"[ERROR]: {e}")
+        return {}

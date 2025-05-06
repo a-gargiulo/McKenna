@@ -1,0 +1,97 @@
+[INFO]: 'config.yaml' successfully loaded and validated.
+[PID 39392] Starting epistemic sample 0 at Tue May  6 07:45:01 2025
+[PID 39395] Starting epistemic sample 1 at Tue May  6 07:45:01 2025
+[PID 39396] Starting epistemic sample 2 at Tue May  6 07:45:01 2025
+[PID 39392] Epistemic 0, Aleatory 0 started at Tue May  6 07:45:01 2025
+[PID 39393] Starting epistemic sample 3 at Tue May  6 07:45:02 2025
+[PID 39395] Epistemic 1, Aleatory 0 started at Tue May  6 07:45:02 2025
+[PID 39391] Starting epistemic sample 4 at Tue May  6 07:45:02 2025
+[PID 39396] Epistemic 2, Aleatory 0 started at Tue May  6 07:45:02 2025
+[PID 39394] Starting epistemic sample 5 at Tue May  6 07:45:02 2025
+[PID 39390] Starting epistemic sample 6 at Tue May  6 07:45:02 2025
+[PID 39389] Starting epistemic sample 7 at Tue May  6 07:45:02 2025
+[PID 39393] Epistemic 3, Aleatory 0 started at Tue May  6 07:45:02 2025
+[PID 39391] Epistemic 4, Aleatory 0 started at Tue May  6 07:45:02 2025
+[PID 39394] Epistemic 5, Aleatory 0 started at Tue May  6 07:45:02 2025
+[PID 39390] Epistemic 6, Aleatory 0 started at Tue May  6 07:45:02 2025
+[PID 39389] Epistemic 7, Aleatory 0 started at Tue May  6 07:45:02 2025
+[PID 39393] Epistemic 3, Aleatory 0 done at Tue May  6 07:48:32 2025 (Duration: 210.40 seconds)
+[PID 39393] Epistemic 3, Aleatory 1 started at Tue May  6 07:48:32 2025
+[PID 39389] Epistemic 7, Aleatory 0 done at Tue May  6 07:48:32 2025 (Duration: 210.44 seconds)
+[PID 39389] Epistemic 7, Aleatory 1 started at Tue May  6 07:48:32 2025
+[PID 39392] Epistemic 0, Aleatory 0 done at Tue May  6 07:48:35 2025 (Duration: 213.41 seconds)
+[PID 39392] Epistemic 0, Aleatory 1 started at Tue May  6 07:48:35 2025
+[PID 39396] Epistemic 2, Aleatory 0 done at Tue May  6 07:48:40 2025 (Duration: 218.16 seconds)
+[PID 39396] Epistemic 2, Aleatory 1 started at Tue May  6 07:48:40 2025
+[PID 39390] Epistemic 6, Aleatory 0 done at Tue May  6 07:48:54 2025 (Duration: 232.66 seconds)
+[PID 39390] Epistemic 6, Aleatory 1 started at Tue May  6 07:48:54 2025
+[PID 39395] Epistemic 1, Aleatory 0 done at Tue May  6 07:48:55 2025 (Duration: 233.21 seconds)
+[PID 39395] Epistemic 1, Aleatory 1 started at Tue May  6 07:48:55 2025
+[PID 39394] Epistemic 5, Aleatory 0 done at Tue May  6 07:48:58 2025 (Duration: 236.72 seconds)
+[PID 39394] Epistemic 5, Aleatory 1 started at Tue May  6 07:48:58 2025
+[PID 39389] Epistemic 7, Aleatory 1 done at Tue May  6 07:51:57 2025 (Duration: 204.76 seconds)
+[PID 39389] Epistemic 7, Aleatory 2 started at Tue May  6 07:51:57 2025
+[PID 39392] Epistemic 0, Aleatory 1 done at Tue May  6 07:52:01 2025 (Duration: 206.37 seconds)
+[PID 39392] Epistemic 0, Aleatory 2 started at Tue May  6 07:52:01 2025
+[PID 39393] Epistemic 3, Aleatory 1 done at Tue May  6 07:52:02 2025 (Duration: 210.18 seconds)
+[PID 39393] Epistemic 3, Aleatory 2 started at Tue May  6 07:52:02 2025
+[PID 39396] Epistemic 2, Aleatory 1 done at Tue May  6 07:52:16 2025 (Duration: 216.50 seconds)
+[PID 39396] Epistemic 2, Aleatory 2 started at Tue May  6 07:52:16 2025
+[PID 39390] Epistemic 6, Aleatory 1 done at Tue May  6 07:52:25 2025 (Duration: 210.49 seconds)
+[PID 39390] Epistemic 6, Aleatory 2 started at Tue May  6 07:52:25 2025
+[PID 39395] Epistemic 1, Aleatory 1 done at Tue May  6 07:52:26 2025 (Duration: 211.69 seconds)
+[PID 39395] Epistemic 1, Aleatory 2 started at Tue May  6 07:52:26 2025
+[PID 39394] Epistemic 5, Aleatory 1 done at Tue May  6 07:52:48 2025 (Duration: 229.35 seconds)
+[PID 39394] Epistemic 5, Aleatory 2 started at Tue May  6 07:52:48 2025
+[PID 39389] Epistemic 7, Aleatory 2 done at Tue May  6 07:55:27 2025 (Duration: 210.37 seconds)
+[PID 39389] Epistemic 7, Aleatory 3 started at Tue May  6 07:55:27 2025
+[PID 39392] Epistemic 0, Aleatory 2 done at Tue May  6 07:55:31 2025 (Duration: 209.99 seconds)
+[PID 39392] Epistemic 0, Aleatory 3 started at Tue May  6 07:55:31 2025
+[PID 39393] Epistemic 3, Aleatory 2 done at Tue May  6 07:55:34 2025 (Duration: 211.46 seconds)
+[PID 39393] Epistemic 3, Aleatory 3 started at Tue May  6 07:55:34 2025
+[PID 39396] Epistemic 2, Aleatory 2 done at Tue May  6 07:55:45 2025 (Duration: 208.68 seconds)
+[PID 39396] Epistemic 2, Aleatory 3 started at Tue May  6 07:55:45 2025
+[PID 39395] Epistemic 1, Aleatory 2 done at Tue May  6 07:55:58 2025 (Duration: 211.74 seconds)
+[PID 39395] Epistemic 1, Aleatory 3 started at Tue May  6 07:55:58 2025
+[PID 39394] Epistemic 5, Aleatory 2 done at Tue May  6 07:56:24 2025 (Duration: 216.21 seconds)
+[PID 39394] Epistemic 5, Aleatory 3 started at Tue May  6 07:56:24 2025
+[PID 39390] Epistemic 6, Aleatory 2 done at Tue May  6 07:56:36 2025 (Duration: 251.03 seconds)
+[PID 39390] Epistemic 6, Aleatory 3 started at Tue May  6 07:56:36 2025
+[PID 39389] Epistemic 7, Aleatory 3 done at Tue May  6 07:59:14 2025 (Duration: 226.64 seconds)
+[PID 39389] Epistemic 7, Aleatory 4 started at Tue May  6 07:59:14 2025
+[PID 39392] Epistemic 0, Aleatory 3 done at Tue May  6 07:59:21 2025 (Duration: 229.78 seconds)
+[PID 39392] Epistemic 0, Aleatory 4 started at Tue May  6 07:59:21 2025
+[PID 39396] Epistemic 2, Aleatory 3 done at Tue May  6 07:59:48 2025 (Duration: 242.95 seconds)
+[PID 39396] Epistemic 2, Aleatory 4 started at Tue May  6 07:59:48 2025
+[PID 39393] Epistemic 3, Aleatory 3 done at Tue May  6 07:59:49 2025 (Duration: 255.66 seconds)
+[PID 39393] Epistemic 3, Aleatory 4 started at Tue May  6 07:59:49 2025
+[PID 39395] Epistemic 1, Aleatory 3 done at Tue May  6 08:00:04 2025 (Duration: 245.96 seconds)
+[PID 39395] Epistemic 1, Aleatory 4 started at Tue May  6 08:00:04 2025
+[PID 39390] Epistemic 6, Aleatory 3 done at Tue May  6 08:00:30 2025 (Duration: 234.38 seconds)
+[PID 39390] Epistemic 6, Aleatory 4 started at Tue May  6 08:00:30 2025
+[PID 39394] Epistemic 5, Aleatory 3 done at Tue May  6 08:00:39 2025 (Duration: 255.66 seconds)
+[PID 39394] Epistemic 5, Aleatory 4 started at Tue May  6 08:00:39 2025
+[PID 39389] Epistemic 7, Aleatory 4 done at Tue May  6 08:02:57 2025 (Duration: 223.63 seconds)
+[PID 39389] Epistemic 7, Aleatory 5 started at Tue May  6 08:02:57 2025
+[PID 39392] Epistemic 0, Aleatory 4 done at Tue May  6 08:03:07 2025 (Duration: 226.28 seconds)
+[PID 39392] Epistemic 0, Aleatory 5 started at Tue May  6 08:03:07 2025
+[PID 39393] Epistemic 3, Aleatory 4 done at Tue May  6 08:03:36 2025 (Duration: 226.82 seconds)
+[PID 39393] Epistemic 3, Aleatory 5 started at Tue May  6 08:03:36 2025
+[PID 39396] Epistemic 2, Aleatory 4 done at Tue May  6 08:03:39 2025 (Duration: 231.07 seconds)
+[PID 39396] Epistemic 2, Aleatory 5 started at Tue May  6 08:03:39 2025
+[PID 39390] Epistemic 6, Aleatory 4 done at Tue May  6 08:04:15 2025 (Duration: 225.14 seconds)
+[PID 39390] Epistemic 6, Aleatory 5 started at Tue May  6 08:04:15 2025
+[PID 39395] Epistemic 1, Aleatory 4 done at Tue May  6 08:04:20 2025 (Duration: 255.94 seconds)
+[PID 39395] Epistemic 1, Aleatory 5 started at Tue May  6 08:04:20 2025
+[PID 39394] Epistemic 5, Aleatory 4 done at Tue May  6 08:04:40 2025 (Duration: 240.76 seconds)
+[PID 39394] Epistemic 5, Aleatory 5 started at Tue May  6 08:04:40 2025
+[PID 39389] Epistemic 7, Aleatory 5 done at Tue May  6 08:06:40 2025 (Duration: 222.48 seconds)
+[PID 39389] Epistemic 7, Aleatory 6 started at Tue May  6 08:06:40 2025
+[PID 39392] Epistemic 0, Aleatory 5 done at Tue May  6 08:06:53 2025 (Duration: 225.59 seconds)
+[PID 39392] Epistemic 0, Aleatory 6 started at Tue May  6 08:06:53 2025
+[PID 39396] Epistemic 2, Aleatory 5 done at Tue May  6 08:07:27 2025 (Duration: 227.89 seconds)
+[PID 39396] Epistemic 2, Aleatory 6 started at Tue May  6 08:07:27 2025
+[PID 39393] Epistemic 3, Aleatory 5 done at Tue May  6 08:07:27 2025 (Duration: 230.93 seconds)
+[PID 39393] Epistemic 3, Aleatory 6 started at Tue May  6 08:07:27 2025
+[PID 39390] Epistemic 6, Aleatory 5 done at Tue May  6 08:08:13 2025 (Duration: 237.41 seconds)
+[PID 39390] Epistemic 6, Aleatory 6 started at Tue May  6 08:08:13 2025
