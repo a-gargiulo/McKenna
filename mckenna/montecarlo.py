@@ -11,7 +11,6 @@ import time
 from multiprocessing import current_process, Manager
 
 
-
 class MonteCarlo:
     """Class for Monte Carlo simulation."""
 
@@ -82,14 +81,13 @@ class MonteCarlo:
         print(f"[PID {os.getpid()}] Finished epistemic sample {ep_idx} at {time.ctime()}")
         return result
 
+
     def run(self):
         n_epistemic = cast(Samples, self._config["settings"]["uq"])["epistemic_samples"]
         n_aleatory = cast(Samples, self._config["settings"]["uq"])["aleatory_samples"]
 
-        with Manager() as manager:
-            logs = manager.list()
-            with mp.Pool(mp.cpu_count()) as pool:
-                pool.starmap(
-                    self.process_epistemic_samples,
-                    [(ep_idx, n_aleatory) for ep_idx in range(n_epistemic)]
-                )
+        with mp.Pool(mp.cpu_count()) as pool:
+            pool.starmap(
+                self.process_epistemic_samples,
+                [(ep_idx, n_aleatory) for ep_idx in range(n_epistemic)]
+            )

@@ -1,52 +1,41 @@
-# mode: "uq"  # uq or single
-mode: "single"  # uq or single
+mode: "single"
 
 mechanism: "./FFCM-2/FFCM-2.yaml"
 
 geometry:
-  type: "impinging_jet"  # free_flame or impinging_jet
-  burner_diameter: 60.452e-03  # [m]; core flow only, co-flow neglected
-  domain_width: 0.020  # [m]
+  type: "impinging_jet"
+  burner_diameter: 60.452e-03
+  domain_width: 0.020
 
 boundary_conditions:
-  pressure: 101325.0  # [Pa]
-  burner_temperature: 300 # [K]
-    # distribution: "uniform"
-    # min: 300
-    # max: 350
-  stagnation_temperature: 345.15
-    # distribution: "normal" 
-    # mean: 345.15 # [K]
-    # stdev: 20 
-  # Note: The molar composition is only needed in 'single' mode, where a nominal
-  # equivalence ratio is assumed. It can be omited in 'uq' mode.
-  composition: "C2H4:1.0, O2:3.0, N2:11.14, AR:0.14"  
-  # Note: Similarly, the fuel specification is only needed in 'uq' mode, where the
-  # composition is calculated from the flow rates. It can be omited in 'single' mode.
+  pressure: 101325.0
+  burner_temperature:
+    distribution: "uniform"
+    min: 300
+    max: 350
+  stagnation_temperature:
+    distribution: "normal"
+    mean: 345.15
+    stdev: 20
+  composition: "C2H4:1.0, O2:3.0, N2:11.14, AR:0.14"
   fuel: "C2H4"
-  flow_rates:  # [slpm]
-    C2H4: 0.652
-      # distribution: "normal"
-      # mean: 0.652
-      # stdev: 0.003
-    # Air 9.35 slpm,
-    # (std. deviation of O2, N2, or AR flow rate in slpm) = 
-    #     (flow rate of Air in slpm) *
-    #     (mass flow controller uncertainty [~0.5%]) *
-    #     (moles of O2, N2, or AR per mole of 'dry' air)
-    # TODO: In the future, use wet air if a hygrometer reading is available 
-    O2: 1.9635 
-      # distribution: "normal"
-      # mean: 1.9635
-      # stdev: 0.0098
-    N2: 7.2930 
-      # distribution: "normal"
-      # mean: 7.2930
-      # stdev: 0.0365
-    AR: 0.0935
-      # distribution: "normal"
-      # mean: 0.0935
-      # stdev: 0.0005
+  flow_rates:
+    C2H4:
+      distribution: "normal"
+      mean: 0.652
+      stdev: 0.003
+    O2:
+      distribution: "normal"
+      mean: 1.9635
+      stdev: 0.0098
+    N2:
+      distribution: "normal"
+      mean: 7.2930
+      stdev: 0.0365
+    AR:
+      distribution: "normal"
+      mean: 0.0935
+      stdev: 0.0005
 
 submodels:
   radiation: true
@@ -61,6 +50,6 @@ settings:
     slope: 0.015
     curve: 0.022
     prune: 0.0
-  # uq:
-  #   epistemic_samples: 10
-  #   aleatory_samples: 10
+  uq:
+    epistemic_samples: 10
+    aleatory_samples: 1

@@ -2,3 +2,6 @@
 data/
 FFCM-2/
 *.png
+.DS_Store/
+__pycache__/
+*.ps1

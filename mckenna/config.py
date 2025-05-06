@@ -1,37 +1,33 @@
-"""Input file parser and validator.
+"""Configuration file parser and validator.
 
 Author: Aldo Gargiulo
 Email:  bzc6rs@virginia.edu
 Date:   05/02/2025 (MM/DD/YYYY)
+
 """
 
-# TODO: Handle unexpected keys in the configuration file.
 import os
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
+
 import yaml
-from typing import Any, Dict, List, Type, Optional, Union, Tuple
+
 from mckenna.utility import parse_composition
-from mckenna.mytypes import ConfigDict
-
-
-class ConfigValidationError(Exception):
-    """Custom exception to collect all configuration file parsing errors."""
-
-    pass
+from mckenna import logging as logger
 
 
 class ConfigValidator:
-    """Custom config file validator class."""
+    """Configuration file parser and validator."""
 
     def __init__(self, config: dict) -> None:
-        """Construct a custom validator.
+        """Initialize the parser and validator.
 
-        :param config: The content of the YAML configuration file.
+        :param config: Content of the (.yaml) configuration file.
         """
         self.config = config
         self.mode = config.get("mode")
 
     def validate(self):
-        """Validate the confiuration file content."""
+        """Validate the content of the configuration file."""
         self._require("mode", str, allowed=["uq", "single"])
         self._require("mechanism", str)
         self._validate_geometry()
@@ -45,11 +41,22 @@ class ConfigValidator:
         expected_type: Union[Type, Tuple[Type, ...]],
         parent: Optional[Dict[str, Any]] = None,
         allowed: Optional[List[Any]] = None,
-    ):
+    ) -> Any:
+        """Make a specific key required.
+
+        :param key: Key to make required.
+        :param expected_type: Type of the values associated with key.
+        :param parent: Parent dictionary, if key is part of a subdictionary.
+        :param allowed: Allowed values associated with key.
+        :raises ConfigValidationError: If the requirements are not satisfied.
+        :return: Value associated with the key.
+        """
         ctx = self.config if parent is None else parent
+
         if key not in ctx:
             raise ConfigValidationError(f"Missing required field: '{key}'")
         value = ctx[key]
+
         if not isinstance(value, expected_type):
             type_names = (
                 expected_type.__name__
@@ -59,8 +66,10 @@ class ConfigValidator:
             raise ConfigValidationError(
                 f"'{key}' must be of type {type_names}"
             )
+
         if allowed and value not in allowed:
             raise ConfigValidationError(f"'{key}' must be one of: {allowed}")
+
         return value
 
     def _validate_geometry(self):
@@ -92,15 +101,26 @@ class ConfigValidator:
                 bc.get("flow_rates", {}), expect_stat=False, comp=comp
             )
         else:
-            raise ConfigValidationError(f"Invalid mode: {self.mode}")
+            raise ConfigValidationError(
+                f"Invalid calculation mode: {self.mode}"
+            )
 
     def _validate_stat_field(self, parent: Dict[str, Any], key: str):
+        """Validate a statistical field associated with a key.
+
+        :param parent: Parent dictionary, if key is part of a subdictionary.
+        :param key: The key containing the statistical field.
+        :raises ConfigValidationError: If requirements are not satisfied.
+        """
         val = parent.get(key)
         if val is None:
-            raise ConfigValidationError(f"'{key}' is required but not found")
+            raise ConfigValidationError(f"'{key}' not found")
 
         if not isinstance(val, dict):
-            raise ConfigValidationError(f"'{key}' must be a dict in 'uq' mode")
+            raise ConfigValidationError(
+                f"'{key}' must be of type 'dict' in 'uq' mode"
+            )
+
         dist = self._require(
             "distribution", str, val, allowed=["uniform", "normal"]
         )
@@ -112,9 +132,15 @@ class ConfigValidator:
                 self._require(param, (int, float), val)
 
     def _validate_numeric_field(self, parent: Dict[str, Any], key: str):
+        """Validate a numeric field associated with a key.
+
+        :param parent: Parent dictionary, if key is part of a subdictionary.
+        :param key: The key containing the statistical field.
+        :raises ConfigValidationError: If requirements are not satisfied.
+        """
         val = parent.get(key)
         if val is None:
-            raise ConfigValidationError(f"'{key}' is required but not found")
+            raise ConfigValidationError(f"'{key}' not found")
 
         if not isinstance(val, (int, float)):
             raise ConfigValidationError(
@@ -190,42 +216,49 @@ class ConfigValidator:
 
 
 def load_yaml_config(path: str) -> dict:
-    """Load the YAML configuration file.
+    """Load the (.yaml) configuration file.
 
     :param path: Path to the configuration file.
-    :raises ConfigValidationError: If loading the YAML file fails at any step.
-    :return: The YAML configuration file content.
+    :raises ConfigValidationError: If loading the configuration file fails.
+    :return: Content of the (.yaml) configuration file.
     :rtype: dict
     """
     try:
         with open(path, "r") as f:
-            return yaml.safe_load(f)
-    except yaml.YAMLError as e:
-        raise ConfigValidationError(f"YAML syntax error: {e}")
-    except FileNotFoundError:
-        raise ConfigValidationError(f"Configuration file not found: {path}")
-    except Exception as e:
-        raise ConfigValidationError(
-            f"Unexpected error while loading YAML: {e}"
-        )
-
-
-def validate_config_file(path: str) -> dict:
-    """Validate the YAML configuration file.
-
-    :param path: Path to the configuration file.
-    :raises ConfigValidationError: If there was an error in loading
-        and validating the configuration file.
-    """
-    try:
-        config = load_yaml_config(path)
-        validator = ConfigValidator(config)
-        validator.validate()
-        print(
-            f"[INFO]: '{os.path.basename(path)}' successfully "
-            "loaded and validated."
+            config = yaml.safe_load(f)
+        logger.log_info(
+            f"Configuration file successfully loaded. "
+            f"(Full path: {path}, Size: {os.path.getsize(path)} bytes)"
         )
         return config
-    except ConfigValidationError as e:
-        print(f"[ERROR]: {e}")
+    except yaml.YAMLError as e:
+        logger.log_error(f"YAML syntax error: {e}")
         return {}
+    except FileNotFoundError:
+        logger.log_error(f"Configuration file not found: {path}")
+        return {}
+    except Exception as e:
+        logger.log_error(f"Unexpected error while loading YAML: {e}")
+        return {}
+
+
+def validate_config_file(config: dict) -> dict:
+    """Validate the configuration data.
+
+    :param config: Configuration data.
+    :raises ConfigValidationError: If validating the data fails.
+    """
+    try:
+        validator = ConfigValidator(config)
+        validator.validate()
+        logger.log_info("Configuration file successfully validated.")
+        return config
+    except ConfigValidationError as e:
+        logger.log_error(f"Invalid configuration file: {e}")
+        return {}
+
+
+class ConfigValidationError(Exception):
+    """Custom exception to tightly collect file parsing errors."""
+
+    pass
