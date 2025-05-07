@@ -1,4 +1,4 @@
-mode: "single"
+mode: "uq"
 
 mechanism: "./FFCM-2/FFCM-2.yaml"
 
