@@ -39,9 +39,9 @@ boundary_conditions:
       # stdev: 0.0005
 
 submodels:
-  radiation: true
+  radiation: True
   transport: "multicomponent"
-  soret: true
+  soret: True
 
 settings:
   meshing:
@@ -54,16 +54,16 @@ settings:
     # prune: 0.0
  
     # coarse (baseline) 
-    # ratio: 2
-    # slope: 0.015
-    # curve: 0.022
-    # prune: 0.0
+    ratio: 2
+    slope: 0.015
+    curve: 0.022
+    prune: 0.0
     
     # medium 
-    ratio: 2
-    slope: 0.0106
-    curve: 0.0156
-    prune: 0.0
+    # ratio: 2
+    # slope: 0.0106
+    # curve: 0.0156
+    # prune: 0.0
     
     # Fine 
     # ratio: 2

@@ -207,11 +207,6 @@ class ConfigValidator:
             uq_settings = self._require("uq", dict, settings)
             self._require("epistemic_samples", int, uq_settings)
             self._require("aleatory_samples", int, uq_settings)
-        else:
-            if "uq" in settings:
-                raise ConfigValidationError(
-                    "'settings.uq' should not be present in 'single' mode"
-                )
 
 
 def load_yaml_config(path: str) -> dict:

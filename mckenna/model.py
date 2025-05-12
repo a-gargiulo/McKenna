@@ -105,9 +105,16 @@ class McKenna:
         )
 
         if self.inputs["geometry"]["type"] == "impinging_jet":
+            # sim = ct.ImpingingJet(
+            #     gas=gas,
+            #     width=self.inputs["geometry"]["domain_width"]
+            # )
+            gr = np.linspace(0,self.inputs["geometry"]["domain_width"], 100)
             sim = ct.ImpingingJet(
-                gas=gas, width=self.inputs["geometry"]["domain_width"]
+                gas=gas,
+                grid=gr
             )
+
             sim.radiation_enabled = self.inputs["submodels"]["radiation"]
             sim.transport_model = self.inputs["submodels"]["transport"]
             sim.soret_enabled = self.inputs["submodels"]["soret"]
@@ -122,8 +129,9 @@ class McKenna:
             sim.set_initial_guess(products="equil")
         elif self.inputs["geometry"]["type"] == "free_flame":
             sim = ct.BurnerFlame(
-                gas=gas, width=self.inputs["geometry"]["domain_width"]
+                gas=gas, grid=None, width=self.inputs["geometry"]["domain_width"]
             )
+
             sim.radiation_enabled = self.inputs["submodels"]["radiation"]
             sim.transport_model = self.inputs["submodels"]["transport"]
             sim.soret_enabled = self.inputs["submodels"]["soret"]
@@ -156,7 +164,8 @@ class McKenna:
         else:
             loglvl = 1
 
-        sim.solve(loglevel=loglvl, auto=True)
+        # sim.solve(loglevel=loglvl, auto=True)
+        sim.solve(loglevel=loglvl, refine_grid=False, auto=True)
 
         output_path = Path() / "data"
         # output_path.mkdir(parents=True, exist_ok=True)
