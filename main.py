@@ -13,6 +13,7 @@ import mckenna as mk
 from mckenna.mytypes import ConfigDict
 
 CONFIG_FILE = "./config.yaml"
+DATA_DIR = "./data"
 
 
 def main():
@@ -20,6 +21,10 @@ def main():
     mk.logger.log_todo(
         "Handle unexpected/superfluous keys when "
         "loading/validating config.yaml."
+    )
+    mk.logger.log_todo(
+            "If one UQ itearation takes to long, "
+            "abort and choose a different sample."
     )
 
     config = mk.config.load_yaml_config(CONFIG_FILE)
@@ -35,6 +40,16 @@ def main():
         mp.freeze_support()
         uq_sim = mk.montecarlo.MonteCarlo(config)
         uq_sim.run()
+        mk.utility.merge_and_cleanup_hdf5_auto(
+            DATA_DIR,
+            (
+                DATA_DIR + "/"
+                f"{cast(dict, config['settings']['uq'])['epistemic_samples']}" +
+                "x" +
+                f"{cast(dict, config['settings']['uq'])['aleatory_samples']}_" +
+                f"{config['geometry']['type']}_MonteCarlo.h5"
+            )
+        )
     elif config["mode"] == "single":
         model = mk.model.McKenna(config, None)
         model.run_simulation()

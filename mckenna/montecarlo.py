@@ -9,6 +9,8 @@ from mckenna import utility
 import multiprocessing as mp
 import time
 from multiprocessing import current_process, Manager
+import mckenna.logging as logger
+from colorama import init, Fore, Style
 
 
 class MonteCarlo:
@@ -19,7 +21,7 @@ class MonteCarlo:
         self._config = config  # Read only
 
     # TODO: Handle more distributions if needed
-    def sample_epistemic_inputs(self) -> Dict[str, Any]:
+    def sample_epistemic_inputs(self, ep_idx: int) -> Dict[str, Any]:
         """Sample from the epistemic uncertainty space.
 
         :param bc: Boundary conditions.
@@ -30,7 +32,9 @@ class MonteCarlo:
 
         samples = {"boundary_conditions": {}}
 
-        samples["boundary_conditions"]["burner_temperature"] = np.random.uniform(Tb["min"], Tb["max"])
+        ep_samples = np.linspace(Tb["min"], Tb["max"], cast(dict, self._config["settings"]["uq"])["epistemic_samples"])
+        samples["boundary_conditions"]["burner_temperature"] = ep_samples[ep_idx]
+        # samples["boundary_conditions"]["burner_temperature"] = np.random.uniform(Tb["min"], Tb["max"])
 
         return samples
 
@@ -66,19 +70,19 @@ class MonteCarlo:
             aleatory_inputs = self.sample_aleatory_inputs()
             overrides = utility.deep_merge(epistemic_inputs, aleatory_inputs)
             model = McKenna(self._config, overrides)
-            print(f"[PID {os.getpid()}] Epistemic {ep_idx}, Aleatory {al_idx} started at {time.ctime(start_time)}")
-            result = model.run_simulation()
+            logger.log_info(f"[{Fore.MAGENTA}{Style.BRIGHT}PID {os.getpid()}{Style.RESET_ALL}] Epistemic {ep_idx}, Aleatory {al_idx} started.")
+            result = model.run_simulation(ep_idx, al_idx)
             end_time = time.time()  # End time for aleatory sample
-            print(f"[PID {os.getpid()}] Epistemic {ep_idx}, Aleatory {al_idx} done at {time.ctime(end_time)}"
+            logger.log_info(f"[{Fore.MAGENTA}{Style.BRIGHT}PID {os.getpid()}{Style.RESET_ALL}] Epistemic {ep_idx}, Aleatory {al_idx} done."
                   f" (Duration: {end_time - start_time:.2f} seconds)")
             results.append(result)
         return results
 
     def process_epistemic_samples(self, ep_idx, n_aleatory) -> List[None]:
-        print(f"[PID {os.getpid()}] Starting epistemic sample {ep_idx} at {time.ctime()}")
-        epistemic_inputs = self.sample_epistemic_inputs()
+        logger.log_info(f"[{Fore.MAGENTA}{Style.BRIGHT}PID {os.getpid()}{Style.RESET_ALL}] Starting epistemic sample {ep_idx}.")
+        epistemic_inputs = self.sample_epistemic_inputs(ep_idx)
         result = self.run_aleatory_batch(epistemic_inputs, n_aleatory, ep_idx)
-        print(f"[PID {os.getpid()}] Finished epistemic sample {ep_idx} at {time.ctime()}")
+        logger.log_info(f"[{Fore.MAGENTA}{Style.BRIGHT}PID {os.getpid()}{Style.RESET_ALL}] Finished epistemic sample {ep_idx}.")
         return result
 
 

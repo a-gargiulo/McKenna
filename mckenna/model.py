@@ -4,6 +4,7 @@ Author: Aldo Gargiulo
 Email:  bzc6rs@virginia.edu
 Date:   05/02/2025 (MM/DD/YYYY)
 """
+import h5py
 import pdb
 import copy
 import uuid
@@ -65,7 +66,7 @@ class McKenna:
 
         return inputs
 
-    def run_simulation(self):
+    def run_simulation(self, ep_idx: int = 0, al_idx: int  = 0):
         """Run a 1D premixed impinging jet or free flame Cantera simulation.
 
         :return: True if successful, False otherwise.
@@ -162,11 +163,34 @@ class McKenna:
 
         output_file_name = f"{self.inputs['geometry']['type']}"
         if self.inputs["mode"] == "uq":
-            output_file_name += f"_{uuid.uuid4()}.h5"
+            output_file_name += f"_ep{ep_idx:02d}_al{al_idx:03d}"
+            output_file_name += ".h5"
         elif self.inputs["mode"] == "single":
             output_file_name += ".h5"
 
         sim.save(output_path / output_file_name, overwrite=True)
+
+        if self.inputs["mode"] == "uq":
+            # Save sampled input values to the same file
+            with h5py.File(output_path / output_file_name, "a") as f:
+                # Flatten nested dicts like {'a': {'b': 1}} -> {'a.b': 1}
+                def flatten_dict(d, parent_key='', sep='.'):
+                    items = []
+                    for k, v in d.items():
+                        new_key = f"{parent_key}{sep}{k}" if parent_key else k
+                        if isinstance(v, dict):
+                            items.extend(flatten_dict(v, new_key, sep=sep).items())
+                        else:
+                            items.append((new_key, v))
+                    return dict(items)
+
+                flat_inputs = flatten_dict(self.inputs)
+
+                # Store inputs under a dedicated group
+                input_grp = f.require_group("samples")
+                for key, val in flat_inputs.items():
+                    if isinstance(val, (int, float, str, np.number)):
+                        input_grp.attrs[key] = val
 
         if self.inputs["mode"] == "single":
             sim.show_stats()
