@@ -1,0 +1,20 @@
+[
+{
+  "directory": "C:/Users/bzc6rs/Documents/01_Dev/McKenna/cfd/build",
+  "command": "C:\\msys64\\mingw64\\bin\\x86_64-w64-mingw32-gcc.exe  @CMakeFiles/McKenna.dir/includes_C.rsp -g -std=gnu99 -Wall -Wextra -pedantic -D_CRT_SECURE_NO_WARNINGS -o CMakeFiles\\McKenna.dir\\lib\\cJSON\\cJSON.c.obj -c C:\\Users\\bzc6rs\\Documents\\01_Dev\\McKenna\\cfd\\lib\\cJSON\\cJSON.c",
+  "file": "C:/Users/bzc6rs/Documents/01_Dev/McKenna/cfd/lib/cJSON/cJSON.c",
+  "output": "CMakeFiles/McKenna.dir/lib/cJSON/cJSON.c.obj"
+},
+{
+  "directory": "C:/Users/bzc6rs/Documents/01_Dev/McKenna/cfd/build",
+  "command": "C:\\msys64\\mingw64\\bin\\x86_64-w64-mingw32-gcc.exe  @CMakeFiles/McKenna.dir/includes_C.rsp -g -std=gnu99 -Wall -Wextra -pedantic -D_CRT_SECURE_NO_WARNINGS -o CMakeFiles\\McKenna.dir\\src\\main.c.obj -c C:\\Users\\bzc6rs\\Documents\\01_Dev\\McKenna\\cfd\\src\\main.c",
+  "file": "C:/Users/bzc6rs/Documents/01_Dev/McKenna/cfd/src/main.c",
+  "output": "CMakeFiles/McKenna.dir/src/main.c.obj"
+},
+{
+  "directory": "C:/Users/bzc6rs/Documents/01_Dev/McKenna/cfd/build",
+  "command": "C:\\msys64\\mingw64\\bin\\x86_64-w64-mingw32-gcc.exe  @CMakeFiles/McKenna.dir/includes_C.rsp -g -std=gnu99 -Wall -Wextra -pedantic -D_CRT_SECURE_NO_WARNINGS -o CMakeFiles\\McKenna.dir\\src\\util.c.obj -c C:\\Users\\bzc6rs\\Documents\\01_Dev\\McKenna\\cfd\\src\\util.c",
+  "file": "C:/Users/bzc6rs/Documents/01_Dev/McKenna/cfd/src/util.c",
+  "output": "CMakeFiles/McKenna.dir/src/util.c.obj"
+}
+]
